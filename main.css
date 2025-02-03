@@ -8,10 +8,38 @@
 }
 
 html, body {
-    margin: 0;
-    background-color: var(--bg-color);
-    min-height: 100%;
-    text-align: center;
-    font-family: 'Courier New', Courier, monospace;
-    color: var(--txt-color);
+	margin: 0;
+	background-color: var(--bg-color);
+	min-height: 100%;
+	text-align: center;
+	font-family: 'Courier New', Courier, monospace;
+	color: var(--txt-color);
+}
+
+.left-parenthesis {
+	margin-left: -0.5ch;
+}
+
+.right-parenthesis {
+	margin-right: -0.5ch;
+}
+
+table {
+	margin: 0 -0.5ch;
+	border-spacing: 0.5ch 0;
+}
+
+td {
+	padding: 0;
+}
+
+.flex {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.operator {
+	font-size: 2em;
+	margin: 0 0.5ch;
 }
