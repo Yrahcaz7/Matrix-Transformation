@@ -22,22 +22,15 @@ class Matrix {
 	 * @param {number[][]} data - The data to store in the matrix. 
 	 */
 	static fromArray(data) {
-		let matrix = new Matrix(data.length, data[0].length);
-		for (let row = 0; row < matrix.rows; row++) {
-			matrix.data[row] = data[row].slice();
-		};
-		return matrix;
+		return new Matrix(data.length, data[0].length).map((_, row, col) => data[row][col]);
 	};
 
 	/**
-	 * Returns a two-dimensional array containing the data in the matrix.
+	 * Returns a new Matrix object that is the identity matrix of the given size.
+	 * @param {number} size - The size of the identity matrix.
 	 */
-	toArray() {
-		let arr = [];
-		for (let row = 0; row < this.rows; row++) {
-			arr.push(this.data[row].slice());
-		};
-		return arr;
+	static identity(size) {
+		return new Matrix(size, size).map((_, row, col) => row === col ? 1 : 0);
 	};
 
 	/**
@@ -66,6 +59,63 @@ class Matrix {
 	 */
 	transpose() {
 		return new Matrix(this.cols, this.rows).map((_, row, col) => this.data[col][row]);
+	};
+
+	/**
+	 * Returns a new matrix that is the result of:
+	 * - Adding the `value` matrix to the current matrix if `value` is a matrix.
+	 * - Adding `value` to each element of the current matrix if `value` is a scalar.
+	 * 
+	 * @param {number | Matrix} value - The scalar or matrix to add to the current matrix.
+	 */
+	add(value) {
+		if (value instanceof Matrix) {
+			if (this.rows !== value.rows || this.cols !== value.cols) {
+				console.error("The number of rows and columns of the matrices must match.");
+				return new Matrix(NaN, NaN);
+			};
+			return this.map((val, row, col) => val + value.data[row][col]);
+		};
+		return this.map(val => val + value);
+	};
+
+	/**
+	 * Returns a new matrix that is the result of:
+	 * - Subtracting the `value` matrix from the current matrix if `value` is a matrix.
+	 * - Subtracting `value` from each element of the current matrix if `value` is a scalar.
+	 * 
+	 * @param {number | Matrix} value - The scalar or matrix to subtract from the current matrix.
+	 */
+	subtract(value) {
+		if (value instanceof Matrix) {
+			if (this.rows !== value.rows || this.cols !== value.cols) {
+				console.error("The number of rows and columns of the matrices must match.");
+				return new Matrix(NaN, NaN);
+			};
+			return this.map((val, row, col) => val - value.data[row][col]);
+		};
+		return this.map(val => val - value);
+	};
+
+	/**
+	 * Returns a new matrix that is the result of multiplying a scalar or matrix with the current matrix.
+	 * @param {number | Matrix} value - The scalar or matrix to multiply with the current matrix.
+	 */
+	multiply(value) {
+		if (value instanceof Matrix) {
+			if (this.cols !== value.rows) {
+				console.error("The number of columns in the first matrix must match the number of rows in the second matrix.");
+				return new Matrix(NaN, NaN);
+			};
+			return new Matrix(this.rows, value.cols).map((_, row, col) => {
+				let val = 0;
+				for (let k = 0; k < this.cols; k++) {
+					val += this.data[row][k] * value.data[k][col];
+				};
+				return val;
+			});
+		};
+		return this.map(val => val * value);
 	};
 
 	/**
@@ -121,50 +171,14 @@ class Matrix {
 			console.error("The determinant of the matrix is zero.");
 			return new Matrix(NaN, NaN);
 		};
-		let adjugate = this.adjugate();
-		return adjugate.map(val => val / determinant);
+		return this.adjugate().multiply(1 / determinant);
 	};
 
 	/**
-	 * Returns a new matrix that is the result of adding a matrix to the current matrix.
-	 * @param {Matrix} matrix - The matrix to add to the current matrix.
+	 * Returns a two-dimensional array containing the data in the matrix.
 	 */
-	add(matrix) {
-		if (this.rows !== matrix.rows || this.cols !== matrix.cols) {
-			console.error("The number of rows and columns of the matrices must match.");
-			return new Matrix(NaN, NaN);
-		};
-		return this.map((val, row, col) => val + matrix.data[row][col]);
-	};
-
-	/**
-	 * Returns a new matrix that is the result of subtracting a matrix from the current matrix.
-	 * @param {Matrix} matrix - The matrix to subtract from the current matrix.
-	 */
-	subtract(matrix) {
-		if (this.rows !== matrix.rows || this.cols !== matrix.cols) {
-			console.error("The number of rows and columns of the matrices must match.");
-			return new Matrix(NaN, NaN);
-		};
-		return this.map((val, row, col) => val - matrix.data[row][col]);
-	};
-
-	/**
-	 * Returns a new matrix that is the result of multiplying a matrix with the current matrix.
-	 * @param {Matrix} matrix - The matrix to multiply with the current matrix.
-	 */
-	multiply(matrix) {
-		if (this.cols !== matrix.rows) {
-			console.error("The number of columns in the first matrix must match the number of rows in the second matrix.");
-			return new Matrix(NaN, NaN);
-		};
-		return new Matrix(this.rows, matrix.cols).map((_, row, col) => {
-			let val = 0;
-			for (let k = 0; k < this.cols; k++) {
-				val += this.data[row][k] * matrix.data[k][col];
-			};
-			return val;
-		});
+	toArray() {
+		return this.copy().data;
 	};
 
 	/**
