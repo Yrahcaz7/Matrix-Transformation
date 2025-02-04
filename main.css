@@ -16,27 +16,34 @@ html, body {
 	color: var(--txt-color);
 }
 
+.matrix, .row {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 .left-parenthesis {
-	margin-left: -0.5ch;
+	margin-left: -0.45ch;
+	margin-right: -0.15ch;
 }
 
 .right-parenthesis {
-	margin-right: -0.5ch;
+	margin-left: -0.15ch;
+	margin-right: -0.45ch;
 }
 
 table {
 	margin: 0 -0.5ch;
-	border-spacing: 0.5ch 0;
+	border-spacing: 1ch 0;
 }
 
 td {
 	padding: 0;
 }
 
-.flex {
-	display: flex;
-	justify-content: center;
-	align-items: center;
+.row {
+	flex-flow: row wrap;
+	overflow: hidden;
 }
 
 .operator {

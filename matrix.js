@@ -121,12 +121,12 @@ class Matrix {
 	 * Returns an HTML representation of the matrix.
 	 */
 	toHTML() {
-		let html = "";
+		let html = "<div class='matrix'>";
 		html += "<div class='left-parenthesis' style='font-size: " + this.rows + "em'>(</div>";
 		html += "<table><tr>";
 		html += this.data.map(row => "<td>" + row.join("</td><td>") + "</td>").join("</tr><tr>");
 		html += "</tr></table>";
 		html += "<div class='right-parenthesis' style='font-size: " + this.rows + "em'>)</div>";
-		return html;
+		return html + "</div>";
 	};
 };
