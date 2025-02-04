@@ -12,10 +12,31 @@ function changeTheme() {
 let ctx;
 
 /** The zoom amount. @type {number} */
-let zoom = 50;
+let zoom = 40;
 
 /** The example triangle. @type {Matrix} */
 const EXAMPLE_TRIANGLE = Matrix.fromArray([[0, 0], [2, 0], [2, 1]]).transpose();
+
+const TRANSFORMED_TRIANGLES = [
+	Matrix.fromArray([[-1, 2], [0, -1]]).multiply(EXAMPLE_TRIANGLE).subtract(1),
+	Matrix.fromArray([[1, 0], [1, 1]]).multiply(EXAMPLE_TRIANGLE),
+	Matrix.fromArray([[0, 2], [-2, 0]]).multiply(EXAMPLE_TRIANGLE),
+	Matrix.fromArray([[-1, -2], [1, 1]]).multiply(EXAMPLE_TRIANGLE),
+];
+
+/**
+ * Draws a shape that is represented by a matrix on the canvas.
+ * @param {Matrix} matrix - The matrix that represents the shape.
+ */
+function drawShape(matrix) {
+	ctx.beginPath();
+	ctx.moveTo(ctx.canvas.width / 2 + matrix.data[0][0] * zoom, ctx.canvas.height / 2 - matrix.data[1][0] * zoom);
+	for (let col = 1; col < matrix.cols; col++) {
+		ctx.lineTo(ctx.canvas.width / 2 + matrix.data[0][col] * zoom, ctx.canvas.height / 2 - matrix.data[1][col] * zoom);
+	};
+	ctx.closePath();
+	ctx.stroke();
+};
 
 /**
  * Updates the canvas.
@@ -35,13 +56,28 @@ function updateCanvas() {
 	ctx.lineTo(ctx.canvas.width, ctx.canvas.height / 2);
 	ctx.stroke();
 	ctx.globalAlpha = 1;
+	// Draw the grid.
+	ctx.globalAlpha = 0.2;
+	for (let x = 0; x < ctx.canvas.width; x += zoom) {
+		ctx.beginPath();
+		ctx.moveTo(x, 0);
+		ctx.lineTo(x, ctx.canvas.height);
+		ctx.stroke();
+	};
+	for (let y = 0; y < ctx.canvas.height; y += zoom) {
+		ctx.beginPath();
+		ctx.moveTo(0, y);
+		ctx.lineTo(ctx.canvas.width, y);
+		ctx.stroke();
+	}
+	ctx.globalAlpha = 1;
 	// Draw the example triangle.
-	ctx.beginPath();
-	ctx.moveTo(ctx.canvas.width / 2 + EXAMPLE_TRIANGLE.data[0][0] * zoom, ctx.canvas.height / 2 - EXAMPLE_TRIANGLE.data[1][0] * zoom);
-	ctx.lineTo(ctx.canvas.width / 2 + EXAMPLE_TRIANGLE.data[0][1] * zoom, ctx.canvas.height / 2 - EXAMPLE_TRIANGLE.data[1][1] * zoom);
-	ctx.lineTo(ctx.canvas.width / 2 + EXAMPLE_TRIANGLE.data[0][2] * zoom, ctx.canvas.height / 2 - EXAMPLE_TRIANGLE.data[1][2] * zoom);
-	ctx.closePath();
-	ctx.stroke();
+	ctx.strokeStyle = document.documentElement.style.getPropertyValue("--txt-color") || "#F0F0F0";
+	drawShape(EXAMPLE_TRIANGLE);
+	ctx.strokeStyle = "#F01010";
+	for (let triangle of TRANSFORMED_TRIANGLES) {
+		drawShape(triangle);
+	};
 };
 
 /**
