@@ -183,17 +183,17 @@ class Matrix {
 
 	/**
 	 * Returns a string representation of the matrix.
-	 * @param {number} places - The number of decimal places to show.
+	 * @param {number} places - The number of decimal places to show. Defaults to `3`.
 	 */
-	toString(places = 5) {
+	toString(places = 3) {
 		return "(" + this.data.map(row => row.map(val => Math.round(val * (10 ** places)) / (10 ** places)).join(" ")).join("\n") + ")";
 	};
 
 	/**
 	 * Returns an HTML representation of the matrix.
-	 * @param {number} places - The number of decimal places to show.
+	 * @param {number} places - The number of decimal places to show. Defaults to `3`.
 	 */
-	toHTML(places = 5) {
+	toHTML(places = 3) {
 		if (this.rows !== this.rows || this.cols !== this.cols) {
 			return "<div class='matrix'><div>Invalid matrix</div></div>";
 		};
@@ -203,6 +203,33 @@ class Matrix {
 		html += "<table><tr>";
 		html += this.data.map(row => "<td>" + row.map(val => Math.round(val * (10 ** places)) / (10 ** places)).join("</td><td>") + "</td>").join("</tr><tr>");
 		html += "</tr></table>";
+		html += "<div class='right-parenthesis' style='" + parenthesisStyle + "'>)</div>";
+		return html + "</div>";
+	};
+
+	/**
+	 * Returns an editable HTML representation of the matrix.
+	 * @param {string} name - The name of the matrix.
+	 * @param {function} updateFunction - The function to call when the matrix is edited.
+	 * @param {number} places - The number of decimal places to show. Defaults to `3`.
+	 */
+	toEditableHTML(name, updateFunction, places = 3) {
+		if (this.rows !== this.rows || this.cols !== this.cols) {
+			return "<div class='matrix'><div>Invalid matrix</div></div>";
+		};
+		let parenthesisStyle = "font-size: " + Math.max(this.rows, 2) + "em";
+		let html = "<div class='matrix'>";
+		html += "<div class='left-parenthesis' style='" + parenthesisStyle + "'>(</div>";
+		html += "<table>";
+		for (let row = 0; row < this.rows; row++) {
+			html += "<tr>";
+			for (let col = 0; col < this.cols; col++) {
+				let num = Math.round(this.data[row][col] * (10 ** places)) / (10 ** places);
+				html += "<td><input type='number' value='" + num + "' min='-5' max='5' step='1e" + (0 - places) + "' oninput='" + name + ".data[" + row + "][" + col + "] = +this.value; " + updateFunction.name + "()'></td>";
+			};
+			html += "</tr>";
+		};
+		html += "</table>";
 		html += "<div class='right-parenthesis' style='" + parenthesisStyle + "'>)</div>";
 		return html + "</div>";
 	};

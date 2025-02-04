@@ -24,6 +24,9 @@ const TRANSFORMED_TRIANGLES = [
 	Matrix.fromArray([[-1, -2], [1, 1]]).multiply(EXAMPLE_TRIANGLE),
 ];
 
+/** The transformation matrix. @type {Matrix} */
+let transform = Matrix.identity(2);
+
 /**
  * Draws a shape that is represented by a matrix on the canvas.
  * @param {Matrix} matrix - The matrix that represents the shape.
@@ -78,6 +81,8 @@ function updateCanvas() {
 	for (let triangle of TRANSFORMED_TRIANGLES) {
 		drawShape(triangle);
 	};
+	ctx.strokeStyle = "#10F010";
+	drawShape(transform.multiply(EXAMPLE_TRIANGLE));
 };
 
 /**
@@ -86,7 +91,7 @@ function updateCanvas() {
 function updateMatrices() {
 	let html = "Matrix Multiplication<br><br>";
 	html += "<div class='row'>";
-	let randomValues = Array.from({length: 4}, () => 1 + Math.floor(Math.random() * 5));
+	let randomValues = Array.from({length: 4}, () => 2 + Math.floor(Math.random() * 2));
 	let matrix1 = new Matrix(randomValues[0], randomValues[1]).map(() => Math.floor(Math.random() * 10));
 	let matrix2 = new Matrix(randomValues[1], randomValues[2]).map(() => Math.floor(Math.random() * 10));
 	let matrix3 = matrix1.multiply(matrix2);
@@ -105,6 +110,10 @@ function updateMatrices() {
 	else html += "<div style='margin: 0 -0.5ch 1em 0'>-1</div>";
 	html += "<div class='operator'>=</div>";
 	html += matrix5.toHTML();
+	html += "</div><br>";
+	html += "Matrix Transformation<br><br>";
+	html += "<div class='row'>";
+	html += transform.toEditableHTML("transform", updateCanvas);
 	html += "</div>";
 	document.getElementById("matrices").innerHTML = html;
 };

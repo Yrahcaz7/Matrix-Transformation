@@ -49,6 +49,15 @@ td {
 	margin: 0 0.5ch;
 }
 
+input {
+	background-color: #80808080;
+	border: none;
+	outline: none;
+	color: var(--txt-color);
+	font-family: inherit;
+	font-size: inherit;
+}
+
 #canvas {
 	border: 2px solid var(--txt-color);
 }
