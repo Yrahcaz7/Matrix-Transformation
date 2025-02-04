@@ -94,7 +94,7 @@ class Matrix {
 
 	/**
 	 * Returns a new matrix that is the result of multiplying a matrix with the current matrix.
-	 * @param {Matrix} matrix 
+	 * @param {Matrix} matrix - The matrix to multiply with the current matrix.
 	 */
 	multiply(matrix) {
 		if (this.cols !== matrix.rows) {
@@ -122,11 +122,11 @@ class Matrix {
 	 */
 	toHTML() {
 		let html = "<div class='matrix'>";
-		html += "<div class='left-parenthesis' style='font-size: " + this.rows + "em'>(</div>";
+		html += "<div class='left-parenthesis' style='font-size: " + Math.max(this.rows, 2) + "em'>(</div>";
 		html += "<table><tr>";
 		html += this.data.map(row => "<td>" + row.join("</td><td>") + "</td>").join("</tr><tr>");
 		html += "</tr></table>";
-		html += "<div class='right-parenthesis' style='font-size: " + this.rows + "em'>)</div>";
+		html += "<div class='right-parenthesis' style='font-size: " + Math.max(this.rows, 2) + "em'>)</div>";
 		return html + "</div>";
 	};
 };

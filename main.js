@@ -1,25 +1,23 @@
+function changeTheme() {
+	let textColor = document.documentElement.style.getPropertyValue("--txt-color") || "#F0F0F0";
+	document.documentElement.style.setProperty("--txt-color", document.documentElement.style.getPropertyValue("--bg-color") || "#101010");
+	document.documentElement.style.setProperty("--bg-color", textColor);
+};
+
 function update() {
 	let html = "<br>Matrix Multiplication<br><br>";
 	html += "<div class='row'>";
-	let matrix1 = new Matrix(2, 3).map((_, row, col) => row + col);
-	let matrix2 = new Matrix(3, 4).map((_, row, col) => row + col);
+	let randomValues = Array.from({length: 3}, () => 1 + Math.floor(Math.random() * 5));
+	let matrix1 = new Matrix(randomValues[0], randomValues[1]).map(() => Math.floor(Math.random() * 10));
+	let matrix2 = new Matrix(randomValues[1], randomValues[2]).map(() => Math.floor(Math.random() * 10));
 	let matrix3 = matrix1.multiply(matrix2);
 	html += matrix1.toHTML();
 	html += "<div class='operator'>&#x00D7;</div>";
 	html += matrix2.toHTML();
 	html += "<div class='operator'>=</div>";
 	html += matrix3.toHTML();
-	html += "</div>";
-	html += "<div class='row'>";
-	let matrix4 = new Matrix(8, 2).map(() => Math.floor(Math.random() * 10));
-	let matrix5 = new Matrix(2, 5).map(() => Math.floor(Math.random() * 10));
-	let matrix6 = matrix4.multiply(matrix5);
-	html += matrix4.toHTML();
-	html += "<div class='operator'>&#x00D7;</div>";
-	html += matrix5.toHTML();
-	html += "<div class='operator'>=</div>";
-	html += matrix6.toHTML();
 	html += "</div><br>";
+	html += "<button onclick='changeTheme()'>Change Theme</button><br>";
 	document.body.innerHTML = html;
 };
 
