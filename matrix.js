@@ -69,13 +69,70 @@ class Matrix {
 	};
 
 	/**
+	 * Returns the determinant of the current matrix.
+	 */
+	determinant() {
+		if (this.rows !== this.cols) {
+			console.error("The matrix must be square.");
+			return NaN;
+		};
+		if (this.rows === 0) {
+			return 1;
+		};
+		if (this.rows === 1) {
+			return this.data[0][0];
+		};
+		if (this.rows === 2) {
+			return this.data[0][0] * this.data[1][1] - this.data[0][1] * this.data[1][0];
+		};
+		let determinant = 0;
+		for (let col = 0; col < this.cols; col++) {
+			let minor = new Matrix(this.rows - 1, this.cols - 1).map((_, row2, col2) => this.data[row2 + 1][col2 < col ? col2 : col2 + 1]);
+			determinant += (col % 2 === 0 ? 1 : -1) * this.data[0][col] * minor.determinant();
+		};
+		return determinant;
+	};
+
+	/**
+	 * Returns the adjugate of the current matrix.
+	 */
+	adjugate() {
+		if (this.rows !== this.cols) {
+			console.error("The matrix must be square.");
+			return new Matrix(NaN, NaN);
+		};
+		let cofactor = new Matrix(this.rows, this.cols).map((_, row, col) => {
+			let minor = new Matrix(this.rows - 1, this.cols - 1).map((_, row2, col2) => this.data[row2 < row ? row2 : row2 + 1][col2 < col ? col2 : col2 + 1]);
+			return (row + col) % 2 === 0 ? minor.determinant() : -minor.determinant();
+		});
+		return cofactor.transpose();
+	};
+
+	/**
+	 * Returns a new matrix that is the inverse of the current matrix.
+	 */
+	inverse() {
+		if (this.rows !== this.cols) {
+			console.error("The matrix must be square.");
+			return new Matrix(NaN, NaN);
+		};
+		let determinant = this.determinant();
+		if (determinant === 0) {
+			console.error("The determinant of the matrix is zero.");
+			return new Matrix(NaN, NaN);
+		};
+		let adjugate = this.adjugate();
+		return adjugate.map(val => val / determinant);
+	};
+
+	/**
 	 * Returns a new matrix that is the result of adding a matrix to the current matrix.
 	 * @param {Matrix} matrix - The matrix to add to the current matrix.
 	 */
 	add(matrix) {
 		if (this.rows !== matrix.rows || this.cols !== matrix.cols) {
 			console.error("The number of rows and columns of the matrices must match.");
-			return this.copy();
+			return new Matrix(NaN, NaN);
 		};
 		return this.map((val, row, col) => val + matrix.data[row][col]);
 	};
@@ -87,7 +144,7 @@ class Matrix {
 	subtract(matrix) {
 		if (this.rows !== matrix.rows || this.cols !== matrix.cols) {
 			console.error("The number of rows and columns of the matrices must match.");
-			return this.copy();
+			return new Matrix(NaN, NaN);
 		};
 		return this.map((val, row, col) => val - matrix.data[row][col]);
 	};
@@ -99,7 +156,7 @@ class Matrix {
 	multiply(matrix) {
 		if (this.cols !== matrix.rows) {
 			console.error("The number of columns in the first matrix must match the number of rows in the second matrix.");
-			return this.copy();
+			return new Matrix(NaN, NaN);
 		};
 		return new Matrix(this.rows, matrix.cols).map((_, row, col) => {
 			let val = 0;
@@ -112,21 +169,27 @@ class Matrix {
 
 	/**
 	 * Returns a string representation of the matrix.
+	 * @param {number} places - The number of decimal places to show.
 	 */
-	toString() {
-		return "(" + this.data.map(row => row.join(" ")).join("\n") + ")";
+	toString(places = 5) {
+		return "(" + this.data.map(row => row.map(val => Math.round(val * (10 ** places)) / (10 ** places)).join(" ")).join("\n") + ")";
 	};
 
 	/**
 	 * Returns an HTML representation of the matrix.
+	 * @param {number} places - The number of decimal places to show.
 	 */
-	toHTML() {
+	toHTML(places = 5) {
+		if (this.rows !== this.rows || this.cols !== this.cols) {
+			return "<div class='matrix'><div>Invalid matrix</div></div>";
+		};
+		let parenthesisStyle = "font-size: " + Math.max(this.rows, 2) + "em";
 		let html = "<div class='matrix'>";
-		html += "<div class='left-parenthesis' style='font-size: " + Math.max(this.rows, 2) + "em'>(</div>";
+		html += "<div class='left-parenthesis' style='" + parenthesisStyle + "'>(</div>";
 		html += "<table><tr>";
-		html += this.data.map(row => "<td>" + row.join("</td><td>") + "</td>").join("</tr><tr>");
+		html += this.data.map(row => "<td>" + row.map(val => Math.round(val * (10 ** places)) / (10 ** places)).join("</td><td>") + "</td>").join("</tr><tr>");
 		html += "</tr></table>";
-		html += "<div class='right-parenthesis' style='font-size: " + Math.max(this.rows, 2) + "em'>)</div>";
+		html += "<div class='right-parenthesis' style='" + parenthesisStyle + "'>)</div>";
 		return html + "</div>";
 	};
 };
