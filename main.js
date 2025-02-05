@@ -160,6 +160,17 @@ function updateCanvas() {
 	drawShape(transform.multiply(SHAPES[selectedShape]));
 };
 
+/**
+ * Sets the zoom of the canvas to the specified amount.
+ * @param {number} amount - The amount to set the zoom to.
+ */
+function zoomCanvas(amount) {
+	document.getElementById("zoom-in").disabled = amount >= 3000;
+	document.getElementById("zoom-out").disabled = amount <= -3000;
+	zoom = amount;
+	updateCanvas();
+};
+
 window.addEventListener("load", () => {
 	ctx = document.getElementById("canvas").getContext("2d");
 	updateUI();

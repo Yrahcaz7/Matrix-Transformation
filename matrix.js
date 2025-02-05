@@ -225,7 +225,7 @@ class Matrix {
 			html += "<tr>";
 			for (let col = 0; col < this.cols; col++) {
 				let num = Math.round(this.data[row][col] * (10 ** places)) / (10 ** places);
-				html += "<td><input type='number' id='" + name + "-" + row + "-" + col + "' value='" + num + "' min='-5' max='5' step='1e" + (0 - places) + "' oninput='" + name + ".data[" + row + "][" + col + "] = +this.value; " + updateFunction.name + "()'></td>";
+				html += "<td><input type='number' id='" + name + "-" + row + "-" + col + "' value='" + num + "' step='any' oninput='" + name + ".data[" + row + "][" + col + "] = +this.value; " + updateFunction.name + "()'></td>";
 			};
 			html += "</tr>";
 		};

@@ -66,6 +66,10 @@ select, input {
 	font-size: inherit;
 }
 
+input[type=number] {
+	width: 10ch;
+}
+
 #canvas {
 	border: 2px solid var(--txt-color);
 }
@@ -79,4 +83,10 @@ button {
 	font-family: inherit;
 	font-size: inherit;
 	cursor: pointer;
+}
+
+button:disabled {
+	border-color: #808080;
+	color: #808080;
+	cursor: not-allowed;
 }
