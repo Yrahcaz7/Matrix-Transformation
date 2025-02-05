@@ -1,8 +1,15 @@
 /**
+ * Returns the text color.
+ */
+function getTextColor() {
+	return document.documentElement.style.getPropertyValue("--txt-color") || "#F0F0F0";
+};
+
+/**
  * Changes the theme.
  */
 function changeTheme() {
-	let textColor = document.documentElement.style.getPropertyValue("--txt-color") || "#F0F0F0";
+	let textColor = getTextColor();
 	document.documentElement.style.setProperty("--txt-color", document.documentElement.style.getPropertyValue("--bg-color") || "#101010");
 	document.documentElement.style.setProperty("--bg-color", textColor);
 	updateCanvas();
@@ -29,6 +36,11 @@ const SHAPES = {
 	triangle: Matrix.fromArray([[0, 0], [32, 0], [16, 32]]).transpose(),
 	square: Matrix.fromArray([[0, 0], [32, 0], [32, 32], [0, 32]]).transpose(),
 	pentagon: Matrix.fromArray([[0, 16], [8, 0], [24, 0], [32, 16], [16, 32]]).transpose(),
+	hexagon: Matrix.fromArray([[0, 16], [8, 0], [24, 0], [32, 16], [24, 32], [8, 32]]).transpose(),
+	heptagon: Matrix.fromArray([[0, 8], [8, 0], [24, 0], [32, 8], [32, 24], [16, 32], [0, 24]]).transpose(),
+	octagon: Matrix.fromArray([[0, 8], [8, 0], [24, 0], [32, 8], [32, 24], [24, 32], [8, 32], [0, 24]]).transpose(),
+	hourglass: Matrix.fromArray([[8, 0], [24, 0], [16, 16], [24, 32], [8, 32], [16, 16]]).transpose(),
+	star: Matrix.fromArray([[0, 16], [12, 12], [16, 0], [20, 12], [32, 16], [20, 20], [16, 32], [12, 20]]).transpose(),
 };
 
 /** The transformation matrix. @type {Matrix} */
@@ -103,6 +115,7 @@ function drawShape(matrix) {
 		ctx.lineTo(ctx.canvas.width / 2 + matrix.data[0][col] * scale, ctx.canvas.height / 2 - matrix.data[1][col] * scale);
 	};
 	ctx.closePath();
+	ctx.fill();
 	ctx.stroke();
 };
 
@@ -111,10 +124,10 @@ function drawShape(matrix) {
  */
 function updateCanvas() {
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-	ctx.strokeStyle = document.documentElement.style.getPropertyValue("--txt-color") || "#F0F0F0";
+	ctx.fillStyle = "transparent";
+	ctx.strokeStyle = getTextColor() + "80";
 	ctx.lineWidth = 2;
 	// Draw the axes.
-	ctx.globalAlpha = 0.5;
 	ctx.beginPath();
 	ctx.moveTo(ctx.canvas.width / 2, 0);
 	ctx.lineTo(ctx.canvas.width / 2, ctx.canvas.height);
@@ -123,10 +136,9 @@ function updateCanvas() {
 	ctx.moveTo(0, ctx.canvas.height / 2);
 	ctx.lineTo(ctx.canvas.width, ctx.canvas.height / 2);
 	ctx.stroke();
-	ctx.globalAlpha = 1;
 	// Draw the grid.
 	const step = getScale() / (2 ** Math.round(zoom / 3 - 5));
-	ctx.globalAlpha = 0.2;
+	ctx.strokeStyle = getTextColor() + "40";
 	for (let x = ctx.canvas.width / 2 % step; x < ctx.canvas.width; x += step) {
 		ctx.beginPath();
 		ctx.moveTo(x, 0);
@@ -139,10 +151,11 @@ function updateCanvas() {
 		ctx.lineTo(ctx.canvas.width, y);
 		ctx.stroke();
 	}
-	ctx.globalAlpha = 1;
 	// Draw the selected shape and its transformation.
-	ctx.strokeStyle = document.documentElement.style.getPropertyValue("--txt-color") || "#F0F0F0";
+	ctx.fillStyle = getTextColor() + "80";
+	ctx.strokeStyle = getTextColor();
 	drawShape(SHAPES[selectedShape]);
+	ctx.fillStyle = "#F0101080";
 	ctx.strokeStyle = "#F01010";
 	drawShape(transform.multiply(SHAPES[selectedShape]));
 };
