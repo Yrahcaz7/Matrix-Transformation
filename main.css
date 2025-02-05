@@ -16,10 +16,18 @@ html, body {
 	color: var(--txt-color);
 }
 
+h1 {
+	margin: 0;
+}
+
 .matrix, .row {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+.row {
+	column-gap: 1ch;
 }
 
 .left-parenthesis {
@@ -49,7 +57,7 @@ td {
 	margin: 0 0.5ch;
 }
 
-input {
+select, input {
 	background-color: #80808080;
 	border: none;
 	outline: none;
