@@ -49,6 +49,9 @@ let transforms = [];
 /** The transformed shape. */
 let transformedShape = SHAPES.triangle.copy();
 
+/** The number of decimal places to round to. @type {number} */
+let decimalPlaces = 3;
+
 /**
  * Returns example matrix operations.
  */
@@ -98,28 +101,43 @@ function getShapeSelector() {
  */
 function getTransformEditor() {
 	let html = "";
-	html += "Transforms<br><br>";
+	html += "<b>Transforms</b><br><br>";
 	if (transforms.length > 0) {
 		html += "<div id='transforms'>";
 		for (let index = 0; index < transforms.length; index++) {
 			if (index > 0) html += "<br>";
-			html += transforms[index].toEditableHTML("transforms[" + index + "]", updateUI, updateCanvas);
+			html += transforms[index].toEditableHTML("transforms[" + index + "]", updateTopUI, updateCanvas);
 		};
 		html += "</div><br>";
 	};
-	html += "<button onclick='transforms.push(new Transform(TRANSFORM.TRANSLATE)); updateUI()'>Add Transform</button> ";
-	html += "<button onclick='transforms.pop(); updateUI(); updateCanvas()'" + (transforms.length === 0 ? " disabled" : "") + ">Remove Transform</button>";
+	html += "<button onclick='transforms.push(new Transform(TRANSFORM.TRANSLATE)); updateTopUI()'>Add Transform</button> ";
+	html += "<button onclick='transforms.pop(); updateTopUI(); updateCanvas()'" + (transforms.length === 0 ? " disabled" : "") + ">Remove Transform</button>";
 	return html;
 };
 
 /**
- * Updates the matrices.
+ * Updates the top UI.
  */
-function updateUI() {
+function updateTopUI() {
 	let html = "";
 	html += getShapeSelector() + "<br><br>";
 	html += getTransformEditor() + "<br><br>";
-	document.getElementById("UI").innerHTML = html;
+	document.getElementById("top-ui").innerHTML = html;
+};
+
+/**
+ * Updates the bottom UI.
+ */
+function updateBottomUI() {
+	let html = "";
+	html += "<b>" + selectedShape.charAt(0).toUpperCase() + selectedShape.slice(1) + " Matrix Transformation</b><br><br>";
+	html += "Decimal Places: <input type='number' id='decimal-places' value='" + decimalPlaces + "' min='0' max='15' step='1' oninput='decimalPlaces = +this.value; updateBottomUI()'><br><br>";
+	html += "<div class='row'>";
+	html += SHAPES[selectedShape].points.toHTML(decimalPlaces);
+	html += "<div class='operator'>&#8594;</div>";
+	html += transformedShape.points.toHTML(decimalPlaces);
+	html += "</div>";
+	document.getElementById("bottom-ui").innerHTML = html;
 };
 
 /**
@@ -156,7 +174,10 @@ function updateCanvas(recalculate = true) {
 		ctx.stroke();
 	}
 	// Recalculate the selected shape.
-	if (recalculate) transformedShape = SHAPES[selectedShape].transform(transforms);
+	if (recalculate) {
+		transformedShape = SHAPES[selectedShape].transform(transforms);
+		updateBottomUI();
+	};
 	// Draw the selected shape and its transformation.
 	ctx.fillStyle = getTextColor() + "80";
 	ctx.strokeStyle = getTextColor();
@@ -179,6 +200,7 @@ function zoomCanvas(amount) {
 
 window.addEventListener("load", () => {
 	ctx = document.getElementById("canvas").getContext("2d");
-	updateUI();
+	updateTopUI();
+	updateBottomUI();
 	updateCanvas(false);
 });

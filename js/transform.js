@@ -42,7 +42,6 @@ class Transform {
 	 */
 	static transformMatrix(matrix, transforms) {
 		for (const transform of transforms) {
-			console.log(transform.getMatrix());
 			if (transform.type === TRANSFORM.TRANSLATE) matrix = transform.getMatrix().add(matrix);
 			else matrix = transform.getMatrix().multiply(matrix);
 		};
@@ -81,20 +80,22 @@ class Transform {
 
 	/**
 	 * Returns a string representation of the transformation.
+	 * @param {number} places - The number of decimal places to show. Defaults to `3`.
 	 */
-	toString() {
+	toString(places = 3) {
 		if (this.type === TRANSFORM.REFLECT) TRANSFORM_DESC[this.type] + ": " + REFLECTION_DESC[this.data[0]];
-		if (this.type === TRANSFORM.CUSTOM) return TRANSFORM_DESC[this.type] + ": " + this.data.toString();
-		if (this.data.length === 1) return TRANSFORM_DESC[this.type] + ": " + this.data[0];
-		return TRANSFORM_DESC[this.type] + ": (" + this.data.join(", ") + ")";
+		if (this.type === TRANSFORM.CUSTOM) return TRANSFORM_DESC[this.type] + ": " + this.data.toString(places);
+		if (this.data.length === 1) return TRANSFORM_DESC[this.type] + ": " + Math.round(this.data[0] * (10 ** places)) / (10 ** places);
+		return TRANSFORM_DESC[this.type] + ": (" + this.data.map(val => Math.round(val * (10 ** places)) / (10 ** places)).join(", ") + ")";
 	};
 
 	/**
 	 * Returns an HTML representation of the transformation.
+	 * @param {number} places - The number of decimal places to show. Defaults to `3`.
 	 */
-	toHTML() {
-		if (this.type === TRANSFORM.CUSTOM) return "<div class='transform'>" + TRANSFORM_DESC[this.type] + ": " + this.data.toHTML() + "</div>";
-		return "<div class='transform'>" + this.toString() + "</div>";
+	toHTML(places = 3) {
+		if (this.type === TRANSFORM.CUSTOM) return "<div class='transform'>" + TRANSFORM_DESC[this.type] + ": " + this.data.toHTML(places) + "</div>";
+		return "<div class='transform'>" + this.toString(places) + "</div>";
 	};
 
 	/**
@@ -102,8 +103,9 @@ class Transform {
 	 * @param {string} name - The name of the transformation.
 	 * @param {function} typeFunction - The function to call when the transformation type is edited.
 	 * @param {function} updateFunction - The function to call when the transformation type or data is edited.
+	 * @param {number} places - The number of decimal places to show. Defaults to `3`.
 	 */
-	toEditableHTML(name, typeFunction, updateFunction) {
+	toEditableHTML(name, typeFunction, updateFunction, places = 3) {
 		let html = "<div class='transform'>";
 		html += "<div><select id='" + name + "-type' onchange='" + name + " = new Transform(+this.value); " + typeFunction.name + "(); " + updateFunction.name + "()'>";
 		for (const type in TRANSFORM_DESC) {
@@ -121,14 +123,14 @@ class Transform {
 			};
 			html += "</select>";
 		} else if (this.type === TRANSFORM.CUSTOM) {
-			html += this.data.toEditableHTML(name + ".data", updateFunction);
+			html += this.data.toEditableHTML(name + ".data", updateFunction, places);
 		} else if (this.data.length === 1) {
-			html += "<input type='number' id='" + name + "-0' value='" + this.data[0] + "' oninput='" + name + ".data[0] = +this.value; " + updateFunction.name + "()'>";
+			html += "<input type='number' id='" + name + "-0' value='" + Math.round(this.data[0] * (10 ** places)) / (10 ** places) + "' oninput='" + name + ".data[0] = +this.value; " + updateFunction.name + "()'>";
 		} else {
 			html += "<div>(";
 			for (let index = 0; index < this.data.length; index++) {
 				if (index > 0) html += ",</div><div>";
-				html += "<input type='number' id='" + name + "-" + index + "' value='" + this.data[index] + "' oninput='" + name + ".data[" + index + "] = +this.value; " + updateFunction.name + "()'>";
+				html += "<input type='number' id='" + name + "-" + index + "' value='" + Math.round(this.data[index] * (10 ** places)) / (10 ** places) + "' oninput='" + name + ".data[" + index + "] = +this.value; " + updateFunction.name + "()'>";
 			};
 			html += ")</div>";
 		};
