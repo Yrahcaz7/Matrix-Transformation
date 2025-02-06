@@ -12,7 +12,7 @@ function changeTheme() {
 	let textColor = getTextColor();
 	document.documentElement.style.setProperty("--txt-color", document.documentElement.style.getPropertyValue("--bg-color") || "#101010");
 	document.documentElement.style.setProperty("--bg-color", textColor);
-	updateCanvas();
+	updateCanvas(false);
 };
 
 /** The canvas context. @type {CanvasRenderingContext2D} */
@@ -31,20 +31,23 @@ function getScale() {
 /** The selected shape. @type {string} */
 let selectedShape = "triangle";
 
-/** Matrix representations of various shapes. */
+/** Various shapes. */
 const SHAPES = {
-	triangle: Matrix.fromArray([[0, 0], [32, 0], [16, 32]]).transpose(),
-	square: Matrix.fromArray([[0, 0], [32, 0], [32, 32], [0, 32]]).transpose(),
-	pentagon: Matrix.fromArray([[0, 16], [8, 0], [24, 0], [32, 16], [16, 32]]).transpose(),
-	hexagon: Matrix.fromArray([[0, 16], [8, 0], [24, 0], [32, 16], [24, 32], [8, 32]]).transpose(),
-	heptagon: Matrix.fromArray([[0, 8], [8, 0], [24, 0], [32, 8], [32, 24], [16, 32], [0, 24]]).transpose(),
-	octagon: Matrix.fromArray([[0, 8], [8, 0], [24, 0], [32, 8], [32, 24], [24, 32], [8, 32], [0, 24]]).transpose(),
-	hourglass: Matrix.fromArray([[8, 0], [24, 0], [16, 16], [24, 32], [8, 32], [16, 16]]).transpose(),
-	star: Matrix.fromArray([[0, 16], [12, 12], [16, 0], [20, 12], [32, 16], [20, 20], [16, 32], [12, 20]]).transpose(),
+	triangle: new Shape([[0, 0], [32, 0], [16, 32]]),
+	square: new Shape([[0, 0], [32, 0], [32, 32], [0, 32]]),
+	pentagon: new Shape([[0, 16], [8, 0], [24, 0], [32, 16], [16, 32]]),
+	hexagon: new Shape([[0, 16], [8, 0], [24, 0], [32, 16], [24, 32], [8, 32]]),
+	heptagon: new Shape([[0, 8], [8, 0], [24, 0], [32, 8], [32, 24], [16, 32], [0, 24]]),
+	octagon: new Shape([[0, 8], [8, 0], [24, 0], [32, 8], [32, 24], [24, 32], [8, 32], [0, 24]]),
+	hourglass: new Shape([[8, 0], [24, 0], [16, 16], [24, 32], [8, 32], [16, 16]]),
+	star: new Shape([[0, 16], [12, 12], [16, 0], [20, 12], [32, 16], [20, 20], [16, 32], [12, 20]]),
 };
 
 /** The transformation matrix. @type {Matrix} */
 let transform = Matrix.identity(2);
+
+/** The transformed shape. */
+let transformedShape = SHAPES.triangle.copy();
 
 /**
  * Returns the shape selector.
@@ -104,15 +107,15 @@ function updateUI() {
 };
 
 /**
- * Draws a shape that is represented by a matrix on the canvas.
- * @param {Matrix} matrix - The matrix that represents the shape.
+ * Draws a shape on the canvas.
+ * @param {Shape} shape - The shape to draw.
  */
-function drawShape(matrix) {
+function drawShape(shape) {
 	const scale = getScale();
 	ctx.beginPath();
-	ctx.moveTo(ctx.canvas.width / 2 + matrix.data[0][0] * scale, ctx.canvas.height / 2 - matrix.data[1][0] * scale);
-	for (let col = 1; col < matrix.cols; col++) {
-		ctx.lineTo(ctx.canvas.width / 2 + matrix.data[0][col] * scale, ctx.canvas.height / 2 - matrix.data[1][col] * scale);
+	ctx.moveTo(ctx.canvas.width / 2 + shape.points.data[0][0] * scale, ctx.canvas.height / 2 - shape.points.data[1][0] * scale);
+	for (let col = 1; col < shape.points.cols; col++) {
+		ctx.lineTo(ctx.canvas.width / 2 + shape.points.data[0][col] * scale, ctx.canvas.height / 2 - shape.points.data[1][col] * scale);
 	};
 	ctx.closePath();
 	ctx.fill();
@@ -121,8 +124,9 @@ function drawShape(matrix) {
 
 /**
  * Updates the canvas.
+ * @param {boolean} recalculate - Whether to recalculate the selected shape. Defaults to `true`.
  */
-function updateCanvas() {
+function updateCanvas(recalculate = true) {
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	ctx.fillStyle = "transparent";
 	ctx.strokeStyle = getTextColor() + "80";
@@ -151,13 +155,15 @@ function updateCanvas() {
 		ctx.lineTo(ctx.canvas.width, y);
 		ctx.stroke();
 	}
+	// Recalculate the selected shape.
+	if (recalculate) transformedShape = SHAPES[selectedShape].transform(transform);
 	// Draw the selected shape and its transformation.
 	ctx.fillStyle = getTextColor() + "80";
 	ctx.strokeStyle = getTextColor();
 	drawShape(SHAPES[selectedShape]);
 	ctx.fillStyle = "#F0101080";
 	ctx.strokeStyle = "#F01010";
-	drawShape(transform.multiply(SHAPES[selectedShape]));
+	drawShape(transformedShape);
 };
 
 /**
@@ -168,11 +174,11 @@ function zoomCanvas(amount) {
 	document.getElementById("zoom-in").disabled = amount >= 3000;
 	document.getElementById("zoom-out").disabled = amount <= -3000;
 	zoom = amount;
-	updateCanvas();
+	updateCanvas(false);
 };
 
 window.addEventListener("load", () => {
 	ctx = document.getElementById("canvas").getContext("2d");
 	updateUI();
-	updateCanvas();
+	updateCanvas(false);
 });
