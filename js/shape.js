@@ -22,12 +22,12 @@ class Shape {
 	};
 
 	/**
-	 * Returns a new shape that is the result of transforming the current shape with the given matrix.
-	 * @param {Matrix} transform - The transformation matrix.
+	 * Returns a new shape that is the result of applying the given transformations to the current shape.
+	 * @param {Transform[]} transforms - The transformations.
 	 */
-	transform(transform) {
+	transform(transforms) {
 		let shape = this.copy();
-		shape.points = transform.multiply(this.points);
+		shape.points = Transform.transformMatrix(shape.points, transforms);
 		return shape;
 	};
 

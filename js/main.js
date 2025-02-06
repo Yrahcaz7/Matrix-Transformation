@@ -43,26 +43,11 @@ const SHAPES = {
 	star: new Shape([[0, 16], [12, 12], [16, 0], [20, 12], [32, 16], [20, 20], [16, 32], [12, 20]]),
 };
 
-/** The transformation matrix. @type {Matrix} */
-let transform = Matrix.identity(2);
+/** The list of transforms. @type {Transform[]} */
+let transforms = [];
 
 /** The transformed shape. */
 let transformedShape = SHAPES.triangle.copy();
-
-/**
- * Returns the shape selector.
- */
-function getShapeSelector() {
-	let html = "";
-	html += "Shape: <select id='shape' onchange='selectedShape = this.value; updateCanvas()'>";
-	for (const shape in SHAPES) {
-		if (SHAPES.hasOwnProperty(shape)) {
-			html += "<option value='" + shape + "'>" + shape.charAt(0).toUpperCase() + shape.slice(1) + "</option>";
-		};
-	};
-	html += "</select>";
-	return html;
-};
 
 /**
  * Returns example matrix operations.
@@ -94,15 +79,46 @@ function getExampleMatrixOperations() {
 };
 
 /**
+ * Returns the shape selector.
+ */
+function getShapeSelector() {
+	let html = "";
+	html += "Shape: <select id='shape' onchange='selectedShape = this.value; updateCanvas()'>";
+	for (const shape in SHAPES) {
+		if (SHAPES.hasOwnProperty(shape)) {
+			html += "<option value='" + shape + "'" + (shape === selectedShape ? " selected" : "") + ">" + shape.charAt(0).toUpperCase() + shape.slice(1) + "</option>";
+		};
+	};
+	html += "</select>";
+	return html;
+};
+
+/**
+ * Returns the transform editor.
+ */
+function getTransformEditor() {
+	let html = "";
+	html += "Transforms<br><br>";
+	if (transforms.length > 0) {
+		html += "<div id='transforms'>";
+		for (let index = 0; index < transforms.length; index++) {
+			if (index > 0) html += "<br>";
+			html += transforms[index].toEditableHTML("transforms[" + index + "]", updateUI, updateCanvas);
+		};
+		html += "</div><br>";
+	};
+	html += "<button onclick='transforms.push(new Transform(TRANSFORM.TRANSLATE)); updateUI()'>Add Transform</button> ";
+	html += "<button onclick='transforms.pop(); updateUI(); updateCanvas()'" + (transforms.length === 0 ? " disabled" : "") + ">Remove Transform</button>";
+	return html;
+};
+
+/**
  * Updates the matrices.
  */
 function updateUI() {
 	let html = "";
 	html += getShapeSelector() + "<br><br>";
-	html += "<div class='row'>";
-	html += "<div>Transformation Matrix:</div>";
-	html += transform.toEditableHTML("transform", updateCanvas);
-	html += "</div>";
+	html += getTransformEditor() + "<br><br>";
 	document.getElementById("UI").innerHTML = html;
 };
 
@@ -140,7 +156,7 @@ function updateCanvas(recalculate = true) {
 		ctx.stroke();
 	}
 	// Recalculate the selected shape.
-	if (recalculate) transformedShape = SHAPES[selectedShape].transform(transform);
+	if (recalculate) transformedShape = SHAPES[selectedShape].transform(transforms);
 	// Draw the selected shape and its transformation.
 	ctx.fillStyle = getTextColor() + "80";
 	ctx.strokeStyle = getTextColor();
