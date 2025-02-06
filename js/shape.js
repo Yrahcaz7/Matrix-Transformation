@@ -22,6 +22,16 @@ class Shape {
 	};
 
 	/**
+	 * Returns a new shape that is the result of transforming the current shape with the given matrix.
+	 * @param {Matrix} transform - The transformation matrix.
+	 */
+	transform(transform) {
+		let shape = this.copy();
+		shape.points = transform.multiply(this.points);
+		return shape;
+	};
+
+	/**
 	 * Adds the given points to the current shape.
 	 * @param {Matrix | number[][]} points - The points to add.
 	 */
@@ -41,12 +51,18 @@ class Shape {
 	};
 
 	/**
-	 * Returns a new shape that is the result of transforming the current shape with the given matrix.
-	 * @param {Matrix} transform - The transformation matrix.
+	 * Draws the shape on the given canvas context with the given scale.
+	 * @param {CanvasRenderingContext2D} context - The canvas context.
+	 * @param {number} scale - The scale of the shape. Defaults to `1`.
 	 */
-	transform(transform) {
-		let shape = this.copy();
-		shape.points = transform.multiply(this.points);
-		return shape;
+	draw(context, scale = 1) {
+		context.beginPath();
+		context.moveTo(context.canvas.width / 2 + this.points.data[0][0] * scale, context.canvas.height / 2 - this.points.data[1][0] * scale);
+		for (let col = 1; col < this.points.cols; col++) {
+			context.lineTo(context.canvas.width / 2 + this.points.data[0][col] * scale, context.canvas.height / 2 - this.points.data[1][col] * scale);
+		};
+		context.closePath();
+		context.fill();
+		context.stroke();
 	};
 };

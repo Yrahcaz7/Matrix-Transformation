@@ -107,22 +107,6 @@ function updateUI() {
 };
 
 /**
- * Draws a shape on the canvas.
- * @param {Shape} shape - The shape to draw.
- */
-function drawShape(shape) {
-	const scale = getScale();
-	ctx.beginPath();
-	ctx.moveTo(ctx.canvas.width / 2 + shape.points.data[0][0] * scale, ctx.canvas.height / 2 - shape.points.data[1][0] * scale);
-	for (let col = 1; col < shape.points.cols; col++) {
-		ctx.lineTo(ctx.canvas.width / 2 + shape.points.data[0][col] * scale, ctx.canvas.height / 2 - shape.points.data[1][col] * scale);
-	};
-	ctx.closePath();
-	ctx.fill();
-	ctx.stroke();
-};
-
-/**
  * Updates the canvas.
  * @param {boolean} recalculate - Whether to recalculate the selected shape. Defaults to `true`.
  */
@@ -160,10 +144,10 @@ function updateCanvas(recalculate = true) {
 	// Draw the selected shape and its transformation.
 	ctx.fillStyle = getTextColor() + "80";
 	ctx.strokeStyle = getTextColor();
-	drawShape(SHAPES[selectedShape]);
+	SHAPES[selectedShape].draw(ctx, getScale());
 	ctx.fillStyle = "#F0101080";
 	ctx.strokeStyle = "#F01010";
-	drawShape(transformedShape);
+	transformedShape.draw(ctx, getScale());
 };
 
 /**
