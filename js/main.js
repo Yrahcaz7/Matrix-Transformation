@@ -120,8 +120,9 @@ function getTransformEditor() {
  */
 function updateTopUI() {
 	let html = "";
-	html += getShapeSelector() + "<br><br>";
-	html += getTransformEditor() + "<br><br>";
+	html += getShapeSelector();
+	html += "<br><br>";
+	html += getTransformEditor();
 	document.getElementById("top-ui").innerHTML = html;
 };
 
