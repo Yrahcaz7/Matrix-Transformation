@@ -1,6 +1,6 @@
-const TRANSFORM = {TRANSLATE: 0, SCALE: 1, REFLECT: 2, ROTATE: 3, SHEAR: 4};
+const TRANSFORM = {TRANSLATE: 0, SCALE: 1, REFLECT: 2, ROTATE: 3, SHEAR: 4, CUSTOM: 5};
 
-const TRANSFORM_DESC = {[TRANSFORM.TRANSLATE]: "Translate", [TRANSFORM.SCALE]: "Scale", [TRANSFORM.REFLECT]: "Reflect", [TRANSFORM.ROTATE]: "Rotate", [TRANSFORM.SHEAR]: "Shear"};
+const TRANSFORM_DESC = {[TRANSFORM.TRANSLATE]: "Translate", [TRANSFORM.SCALE]: "Scale", [TRANSFORM.REFLECT]: "Reflect", [TRANSFORM.ROTATE]: "Rotate", [TRANSFORM.SHEAR]: "Shear", [TRANSFORM.CUSTOM]: "Custom"};
 
 const REFLECTION = {NONE: 0, X_AXIS: 1, Y_AXIS: 2, X_AND_Y_AXES: 3, POSITIVE_DIAGONAL: 4, NEGATIVE_DIAGONAL: 5};
 
@@ -9,7 +9,7 @@ const REFLECTION_DESC = {[REFLECTION.NONE]: "None", [REFLECTION.X_AXIS]: "X-Axis
 class Transform {
 	/** The type of the transformation. @type {number} */
 	type = TRANSFORM.TRANSLATE;
-	/** The data of the transformation. @type {number[]} */
+	/** The data of the transformation. @type {number[] | Matrix} */
 	data = [0, 0];
 
 	/**
@@ -31,6 +31,7 @@ class Transform {
 		if (type === TRANSFORM.SCALE) return [1, 1];
 		if (type === TRANSFORM.REFLECT) return [REFLECTION.NONE];
 		if (type === TRANSFORM.ROTATE) return [0];
+		if (type === TRANSFORM.CUSTOM) return Matrix.identity(2);
 		return [];
 	};
 
@@ -74,6 +75,7 @@ class Transform {
 			return Matrix.fromArray([[Math.cos(angle), -Math.sin(angle)], [Math.sin(angle), Math.cos(angle)]]);
 		};
 		if (this.type === TRANSFORM.SHEAR) return Matrix.fromArray([[1, this.data[0]], [this.data[1], 1]]);
+		if (this.type === TRANSFORM.CUSTOM) return this.data;
 		return Matrix.identity(2);
 	};
 
@@ -82,6 +84,7 @@ class Transform {
 	 */
 	toString() {
 		if (this.type === TRANSFORM.REFLECT) TRANSFORM_DESC[this.type] + ": " + REFLECTION_DESC[this.data[0]];
+		if (this.type === TRANSFORM.CUSTOM) return TRANSFORM_DESC[this.type] + ": " + this.data.toString();
 		if (this.data.length === 1) return TRANSFORM_DESC[this.type] + ": " + this.data[0];
 		return TRANSFORM_DESC[this.type] + ": (" + this.data.join(", ") + ")";
 	};
@@ -90,6 +93,7 @@ class Transform {
 	 * Returns an HTML representation of the transformation.
 	 */
 	toHTML() {
+		if (this.type === TRANSFORM.CUSTOM) return "<div class='transform'>" + TRANSFORM_DESC[this.type] + ": " + this.data.toHTML() + "</div>";
 		return "<div class='transform'>" + this.toString() + "</div>";
 	};
 
@@ -101,13 +105,13 @@ class Transform {
 	 */
 	toEditableHTML(name, typeFunction, updateFunction) {
 		let html = "<div class='transform'>";
-		html += "<select id='" + name + "-type' onchange='" + name + " = new Transform(+this.value); " + typeFunction.name + "(); " + updateFunction.name + "()'>";
+		html += "<div><select id='" + name + "-type' onchange='" + name + " = new Transform(+this.value); " + typeFunction.name + "(); " + updateFunction.name + "()'>";
 		for (const type in TRANSFORM_DESC) {
 			if (TRANSFORM_DESC.hasOwnProperty(type)) {
 				html += "<option value='" + type + "'" + (+type === this.type ? " selected" : "") + ">" + TRANSFORM_DESC[type] + "</option>";
 			};
 		};
-		html += "</select>: ";
+		html += "</select>:</div>";
 		if (this.type === TRANSFORM.REFLECT) {
 			html += "<select id='" + name + "-0' onchange='" + name + ".data[0] = +this.value; " + updateFunction.name + "()'>";
 			for (const reflection in REFLECTION_DESC) {
@@ -116,15 +120,17 @@ class Transform {
 				};
 			};
 			html += "</select>";
+		} else if (this.type === TRANSFORM.CUSTOM) {
+			html += this.data.toEditableHTML(name + ".data", updateFunction);
 		} else if (this.data.length === 1) {
 			html += "<input type='number' id='" + name + "-0' value='" + this.data[0] + "' oninput='" + name + ".data[0] = +this.value; " + updateFunction.name + "()'>";
 		} else {
-			html += "(";
+			html += "<div>(";
 			for (let index = 0; index < this.data.length; index++) {
-				if (index > 0) html += ", ";
+				if (index > 0) html += ",</div><div>";
 				html += "<input type='number' id='" + name + "-" + index + "' value='" + this.data[index] + "' oninput='" + name + ".data[" + index + "] = +this.value; " + updateFunction.name + "()'>";
 			};
-			html += ")";
+			html += ")</div>";
 		};
 		return html + "</div>";
 	};

@@ -20,13 +20,13 @@ h1 {
 	margin: 0;
 }
 
-.matrix, .row {
+.transform, .matrix, .row {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
-.row {
+.transform, .row {
 	column-gap: 1ch;
 }
 
@@ -47,7 +47,7 @@ td {
 	padding: 0;
 }
 
-.row {
+.transform, .row {
 	flex-flow: row wrap;
 	overflow: hidden;
 }
