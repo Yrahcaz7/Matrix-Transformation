@@ -85,7 +85,7 @@ class Transform {
 	toString(places = 3) {
 		if (this.type === TRANSFORM.REFLECT) TRANSFORM_DESC[this.type] + ": " + REFLECTION_DESC[this.data[0]];
 		if (this.type === TRANSFORM.CUSTOM) return TRANSFORM_DESC[this.type] + ": " + this.data.toString(places);
-		if (this.data.length === 1) return TRANSFORM_DESC[this.type] + ": " + Math.round(this.data[0] * (10 ** places)) / (10 ** places);
+		if (this.type === TRANSFORM.ROTATE) return TRANSFORM_DESC[this.type] + ": " + Math.round(this.data[0] * (10 ** places)) / (10 ** places) + " degrees";
 		return TRANSFORM_DESC[this.type] + ": (" + this.data.map(val => Math.round(val * (10 ** places)) / (10 ** places)).join(", ") + ")";
 	};
 
@@ -124,8 +124,8 @@ class Transform {
 			html += "</select>";
 		} else if (this.type === TRANSFORM.CUSTOM) {
 			html += this.data.toEditableHTML(name + ".data", updateFunction, places);
-		} else if (this.data.length === 1) {
-			html += "<input type='number' id='" + name + "-0' value='" + Math.round(this.data[0] * (10 ** places)) / (10 ** places) + "' oninput='" + name + ".data[0] = +this.value; " + updateFunction.name + "()'>";
+		} else if (this.type === TRANSFORM.ROTATE) {
+			html += "<input type='number' id='" + name + "-0' value='" + Math.round(this.data[0] * (10 ** places)) / (10 ** places) + "' oninput='" + name + ".data[0] = +this.value; " + updateFunction.name + "()'><div>degrees</div>";
 		} else {
 			html += "<div>(";
 			for (let index = 0; index < this.data.length; index++) {
