@@ -49,9 +49,6 @@ let transforms = [];
 /** The transformed shape. */
 let transformedShape = SHAPES.triangle.copy();
 
-/** The number of decimal places to round to. @type {number} */
-let decimalPlaces = 3;
-
 /**
  * Returns example matrix operations.
  */
@@ -128,15 +125,15 @@ function updateTopUI() {
 
 /**
  * Updates the bottom UI.
+ * @param {number} places - The number of decimal places to show. Defaults to `3`.
  */
-function updateBottomUI() {
+function updateBottomUI(places = 3) {
+	places = Math.min(Math.max(places, 0), 15);
 	let html = "";
-	html += "<b>" + selectedShape.charAt(0).toUpperCase() + selectedShape.slice(1) + " Matrix Transformation</b><br><br>";
-	html += "Decimal Places: <input type='number' id='decimal-places' value='" + decimalPlaces + "' min='0' max='15' step='1' oninput='decimalPlaces = +this.value; updateBottomUI()'><br><br>";
 	html += "<div class='row'>";
-	html += SHAPES[selectedShape].points.toHTML(decimalPlaces);
+	html += SHAPES[selectedShape].points.toHTML(places);
 	html += "<div class='operator'>&#8594;</div>";
-	html += transformedShape.points.toHTML(decimalPlaces);
+	html += transformedShape.points.toHTML(places);
 	html += "</div>";
 	document.getElementById("bottom-ui").innerHTML = html;
 };
