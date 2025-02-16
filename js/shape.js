@@ -10,7 +10,7 @@ class Shape {
 		if (points instanceof Matrix) {
 			this.points = points;
 		} else {
-			this.points = Matrix.fromArray(points).transpose();
+			this.points = new Matrix(3, points.length).map((_, row, col) => row > 1 ? 1 : points[col][row]);
 		};
 	};
 

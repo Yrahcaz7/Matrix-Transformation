@@ -31,7 +31,7 @@ class Transform {
 		if (type === TRANSFORM.SCALE) return [1, 1];
 		if (type === TRANSFORM.REFLECT) return [REFLECTION.NONE];
 		if (type === TRANSFORM.ROTATE) return [0];
-		if (type === TRANSFORM.CUSTOM) return Matrix.identity(2);
+		if (type === TRANSFORM.CUSTOM) return Matrix.identity(3);
 		return [];
 	};
 
@@ -42,8 +42,7 @@ class Transform {
 	 */
 	static transformMatrix(matrix, transforms) {
 		for (const transform of transforms) {
-			if (transform.type === TRANSFORM.TRANSLATE) matrix = transform.getMatrix().add(matrix);
-			else matrix = transform.getMatrix().multiply(matrix);
+			matrix = transform.getMatrix().multiply(matrix);
 		};
 		return matrix;
 	};
@@ -59,23 +58,23 @@ class Transform {
 	 * Returns the transformation matrix that represents the current transformation.
 	 */
 	getMatrix() {
-		if (this.type === TRANSFORM.TRANSLATE) return Matrix.fromArray([[this.data[0]], [this.data[1]]], true);
-		if (this.type === TRANSFORM.SCALE) return Matrix.fromArray([[this.data[0], 0], [0, this.data[1]]]);
+		if (this.type === TRANSFORM.TRANSLATE) return Matrix.fromArray([[1, 0, this.data[0]], [0, 1, this.data[1]], [0, 0, 1]]);
+		if (this.type === TRANSFORM.SCALE) return Matrix.fromArray([[this.data[0], 0, 0], [0, this.data[1], 0], [0, 0, 1]]);
 		if (this.type === TRANSFORM.REFLECT) {
-			if (this.data[0] === REFLECTION.NONE) return Matrix.fromArray([[1, 0], [0, 1]]);
-			if (this.data[0] === REFLECTION.X_AXIS) return Matrix.fromArray([[1, 0], [0, -1]]);
-			if (this.data[0] === REFLECTION.Y_AXIS) return Matrix.fromArray([[-1, 0], [0, 1]]);
-			if (this.data[0] === REFLECTION.X_AND_Y_AXES) return Matrix.fromArray([[-1, 0], [0, -1]]);
-			if (this.data[0] === REFLECTION.POSITIVE_DIAGONAL) return Matrix.fromArray([[0, 1], [1, 0]]);
-			if (this.data[0] === REFLECTION.NEGATIVE_DIAGONAL) return Matrix.fromArray([[0, -1], [-1, 0]]);
+			if (this.data[0] === REFLECTION.NONE) return Matrix.fromArray([[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
+			if (this.data[0] === REFLECTION.X_AXIS) return Matrix.fromArray([[1, 0, 0], [0, -1, 0], [0, 0, 1]]);
+			if (this.data[0] === REFLECTION.Y_AXIS) return Matrix.fromArray([[-1, 0, 0], [0, 1, 0], [0, 0, 1]]);
+			if (this.data[0] === REFLECTION.X_AND_Y_AXES) return Matrix.fromArray([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]);
+			if (this.data[0] === REFLECTION.POSITIVE_DIAGONAL) return Matrix.fromArray([[0, 1, 0], [1, 0, 0], [0, 0, 1]]);
+			if (this.data[0] === REFLECTION.NEGATIVE_DIAGONAL) return Matrix.fromArray([[0, -1, 0], [-1, 0, 0], [0, 0, 1]]);
 		};
 		if (this.type === TRANSFORM.ROTATE) {
 			const angle = this.data[0] * Math.PI / 180;
-			return Matrix.fromArray([[Math.cos(angle), -Math.sin(angle)], [Math.sin(angle), Math.cos(angle)]]);
+			return Matrix.fromArray([[Math.cos(angle), -Math.sin(angle), 0], [Math.sin(angle), Math.cos(angle), 0], [0, 0, 1]]);
 		};
-		if (this.type === TRANSFORM.SHEAR) return Matrix.fromArray([[1, this.data[0]], [this.data[1], 1]]);
+		if (this.type === TRANSFORM.SHEAR) return Matrix.fromArray([[1, this.data[0], 0], [this.data[1], 1, 0], [0, 0, 1]]);
 		if (this.type === TRANSFORM.CUSTOM) return this.data;
-		return Matrix.identity(2);
+		return Matrix.identity(3);
 	};
 
 	/**

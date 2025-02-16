@@ -3,8 +3,6 @@ class Matrix {
 	rows = 0;
 	/** The number of columns in the matrix. @type {number} */
 	cols = 0;
-	/** Whether the matrix is iterative. If a matrix is iterative, whenever it is added or subtracted with another matrix, it acts as if its rows and columns repeat in a cycle as long as needed to reach the required dimensions for the operation to work. Two iterative matrices with different sizes cannot be added or subtracted with each other. An iterative matrix does not have a determinant, adjugate, or inverse, and it cannot be multiplied with another matrix. @type {boolean} */
-	iterative = false;
 	/** The data stored in the matrix. @type {number[][]} */
 	data = [];
 
@@ -12,22 +10,19 @@ class Matrix {
 	 * Returns a new Matrix object with the given number of rows and columns.
 	 * @param {number} rows - The number of rows in the matrix.
 	 * @param {number} cols - The number of columns in the matrix.
-	 * @param {boolean} iterative - Whether the matrix is iterative. Defaults to `false`.
 	 */
-	constructor(rows, cols, iterative = false) {
+	constructor(rows, cols) {
 		this.rows = rows;
 		this.cols = cols;
-		this.iterative = iterative;
 		this.data = Array.from({length: this.rows}, () => Array(this.cols).fill(0));
 	};
 
 	/**
 	 * Returns a new Matrix object that contains the given data.
 	 * @param {number[][]} data - The data to store in the matrix.
-	 * @param {boolean} iterative - Whether the matrix is iterative. Defaults to `false`.
 	 */
-	static fromArray(data, iterative = false) {
-		return new Matrix(data.length, data[0].length, iterative).map((_, row, col) => data[row][col]);
+	static fromArray(data) {
+		return new Matrix(data.length, data[0].length).map((_, row, col) => data[row][col]);
 	};
 
 	/**
@@ -43,7 +38,7 @@ class Matrix {
 	 * @param {(val: number, row: number, col: number) => number} callbackfn - A function that accepts up to three numerical arguments.
 	 */
 	map(callbackfn) {
-		let matrix = new Matrix(this.rows, this.cols, this.iterative);
+		let matrix = new Matrix(this.rows, this.cols);
 		for (let row = 0; row < this.rows; row++) {
 			for (let col = 0; col < this.cols; col++) {
 				matrix.data[row][col] = callbackfn(this.data[row][col], row, col);
@@ -75,20 +70,6 @@ class Matrix {
 	 */
 	add(value) {
 		if (value instanceof Matrix) {
-			if (this.iterative && !value.iterative) {
-				if (this.rows > value.rows || this.cols > value.cols) {
-					console.error("The number of rows and columns of the iterative matrix must not be greater than the number of rows and columns of the non-iterative matrix.");
-					return new Matrix(NaN, NaN);
-				};
-				return value.map((val, row, col) => val + this.data[row % this.rows][col % this.cols]);
-			};
-			if (value.iterative && !this.iterative) {
-				if (value.rows > this.rows || value.cols > this.cols) {
-					console.error("The number of rows and columns of the iterative matrix must not be greater than the number of rows and columns of the non-iterative matrix.");
-					return new Matrix(NaN, NaN);
-				};
-				return this.map((val, row, col) => val + value.data[row % value.rows][col % value.cols]);
-			};
 			if (this.rows !== value.rows || this.cols !== value.cols) {
 				console.error("The number of rows and columns of the matrices must match.");
 				return new Matrix(NaN, NaN);
@@ -107,20 +88,6 @@ class Matrix {
 	 */
 	subtract(value) {
 		if (value instanceof Matrix) {
-			if (this.iterative && !value.iterative) {
-				if (this.rows > value.rows || this.cols > value.cols) {
-					console.error("The number of rows and columns of the iterative matrix must not be greater than the number of rows and columns of the non-iterative matrix.");
-					return new Matrix(NaN, NaN);
-				};
-				return value.map((val, row, col) => val - this.data[row % this.rows][col % this.cols]);
-			};
-			if (value.iterative && !this.iterative) {
-				if (value.rows > this.rows || value.cols > this.cols) {
-					console.error("The number of rows and columns of the iterative matrix must not be greater than the number of rows and columns of the non-iterative matrix.");
-					return new Matrix(NaN, NaN);
-				};
-				return this.map((val, row, col) => val - value.data[row % value.rows][col % value.cols]);
-			};
 			if (this.rows !== value.rows || this.cols !== value.cols) {
 				console.error("The number of rows and columns of the matrices must match.");
 				return new Matrix(NaN, NaN);
@@ -136,10 +103,6 @@ class Matrix {
 	 */
 	multiply(value) {
 		if (value instanceof Matrix) {
-			if (this.iterative || value.iterative) {
-				console.error("The matrices must not be iterative.");
-				return new Matrix(NaN, NaN);
-			};
 			if (this.cols !== value.rows) {
 				console.error("The number of columns in the first matrix must match the number of rows in the second matrix.");
 				return new Matrix(NaN, NaN);
@@ -159,10 +122,6 @@ class Matrix {
 	 * Returns the determinant of the current matrix.
 	 */
 	determinant() {
-		if (this.iterative) {
-			console.error("The matrix must not be iterative.");
-			return NaN;
-		};
 		if (this.rows !== this.cols) {
 			console.error("The matrix must be square.");
 			return NaN;
@@ -188,10 +147,6 @@ class Matrix {
 	 * Returns the adjugate of the current matrix.
 	 */
 	adjugate() {
-		if (this.iterative) {
-			console.error("The matrix must not be iterative.");
-			return new Matrix(NaN, NaN);
-		};
 		if (this.rows !== this.cols) {
 			console.error("The matrix must be square.");
 			return new Matrix(NaN, NaN);
@@ -207,10 +162,6 @@ class Matrix {
 	 * Returns a new matrix that is the inverse of the current matrix.
 	 */
 	inverse() {
-		if (this.iterative) {
-			console.error("The matrix must not be iterative.");
-			return new Matrix(NaN, NaN);
-		};
 		if (this.rows !== this.cols) {
 			console.error("The matrix must be square.");
 			return new Matrix(NaN, NaN);
